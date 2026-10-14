@@ -88,7 +88,8 @@ def linear_stage(stack: Path, cfg: dict, prof: dict, work: Path, meta: dict, log
     folder.mkdir(parents=True, exist_ok=True)
 
     # 1. crop the low-coverage borders left by field rotation / drift
-    st = Step(folder, "01_crop", lp.get("autocrop", {}), [stack, stack.parent / "coverage.fits"])
+    st = Step(folder, "01_crop", {**lp.get("autocrop", {}), "manual": lp.get("crop")},
+              [stack, stack.parent / "coverage.fits"])
     if not st.cached():
         img, hdr = ops.load_fits(stack)
         ac = lp.get("autocrop", {})
@@ -103,6 +104,11 @@ def linear_stage(stack: Path, cfg: dict, prof: dict, work: Path, meta: dict, log
                 y0, y1, x0, x1 = ops.autocrop_box(img, tol=ac.get("tolerance", 1.35),
                                                  max_frac=ac.get("max_fraction", 0.25))
             img = img[y0:y1, x0:x1]
+        manual = lp.get("crop")
+        if manual:  # [left, top, right, bottom] as fractions of the auto-cropped frame
+            h, w = img.shape[:2]
+            l, t, r, b = manual
+            img = img[int(t * h):int(b * h), int(l * w):int(r * w)]
             meta["crop"] = {"from": [int(hdr.get("NAXIS1", 0)), int(hdr.get("NAXIS2", 0))],
                             "box_xywh": [int(x0), int(y0), int(x1 - x0), int(y1 - y0)]}
         ops.save_fits(st.path(), img, hdr)
@@ -323,6 +329,7 @@ def _finish_stars(starless: np.ndarray, full: np.ndarray, pp: dict) -> np.ndarra
     f = _stretch_fn(starless, st)
     out = ops.unscreen(f(full), f(starless))
     out = ops.tame_blue_fringe(out, s.get("blue_fringe_limit"))
+    out = ops.scnr_green(out, pp.get("scnr", 0))  # no star is green
     out = ops.saturate(out, s.get("saturation", 1.3))
     out = ops.limit_chroma(out, s.get("max_chroma"))
     out = ops.desaturate_halos(out, s.get("halo_desaturate", 0.0))

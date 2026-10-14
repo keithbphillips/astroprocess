@@ -66,6 +66,7 @@ overridden for one run:
 astro run "<folder>" --set post.saturation.amount=1.9 --set post.stretch.target_bg=0.10
 astro run "<folder>" --set post.stars.strength=0.6          # fainter stars
 astro run "<folder>" --set linear.autocrop.min_coverage=0.8  # cleaner edges, smaller field
+astro run "<folder>" --set "linear.crop=[0.17,0,1,1]"       # cut away a tree/edge: [left,top,right,bottom]
 astro run "<folder>" --out ~/AstroWork/trial/x               # try something without touching the gallery
 ```
 

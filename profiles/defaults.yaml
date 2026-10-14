@@ -22,6 +22,7 @@ linear:
                               # raise for cleaner edges, lower to keep more of the field
     tolerance: 1.35           # fallback without a coverage map: crop borders noisier than 1.35x the centre
     max_fraction: 0.25
+  crop: null                  # manual crop [left, top, right, bottom] as fractions, e.g. [0.17, 0, 1, 1]
   background:
     method: graxpert          # graxpert (AI) | siril (RBF sample grid) | none
     correction: Subtraction

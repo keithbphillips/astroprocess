@@ -10,7 +10,7 @@ import re
 MESSIER = {
     "galaxy": {31, 32, 33, 49, 51, 58, 59, 60, 61, 63, 64, 65, 66, 74, 77, 81, 82, 83, 84, 85, 86, 87, 88, 89,
                90, 91, 94, 95, 96, 98, 99, 100, 101, 102, 104, 105, 106, 108, 109, 110},
-    "nebula": {1, 8, 16, 17, 20, 27, 42, 43, 57, 76, 78, 97},
+    "nebula": {1, 8, 16, 17, 20, 27, 42, 43, 45, 57, 76, 78, 97},  # M45: the reflection nebula is the show
     # everything else in Messier is a globular or open cluster (or M40/M73 asterisms)
 }
 
@@ -29,9 +29,9 @@ def guess_type(name: str) -> str:
         return "nebula"
     if any(w in n for w in ("GALAXY", "LEO TRIPLET", "MARKARIAN")):
         return "galaxy"
-    if any(w in n for w in ("CLUSTER", "PLEIADES", "BEEHIVE", "DOUBLE CLUSTER")):
+    if any(w in n for w in ("CLUSTER", "BEEHIVE", "DOUBLE CLUSTER")):
         return "cluster"
-    if any(w in n for w in ("NEBULA", "VEIL", "CRESCENT", "IRIS", "HEART", "SOUL", "ROSETTE")):
+    if any(w in n for w in ("NEBULA", "VEIL", "CRESCENT", "IRIS", "HEART", "SOUL", "ROSETTE", "PLEIADES")):
         return "nebula"
     m = re.match(r"^\s*M\s*0*(\d+)\b", n)
     if m:
