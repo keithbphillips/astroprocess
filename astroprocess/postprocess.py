@@ -146,7 +146,9 @@ def linear_stage(stack: Path, cfg: dict, prof: dict, work: Path, meta: dict, log
 
     # 3. plate solve + colour calibration
     cp = lp["color"]
-    st = Step(folder, "03_color", {**cp, "hint": meta.get("solve_hint")}, [cur])
+    # the catalogue lines are in the key so installing the local Gaia catalogues re-runs SPCC
+    st = Step(folder, "03_color", {**cp, "hint": meta.get("solve_hint"),
+                                   "catalogues": catalogue_settings(cfg["tools"])}, [cur])
     if not st.cached():
         meta["color"] = _color_calibrate(cur, st.path(), cfg, prof, folder, meta, log)
         (folder / "color.json").write_text(json.dumps({k: meta.get(k) for k in ("color", "platesolve")}))

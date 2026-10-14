@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 # Wrapper: runs the pipeline with the project's virtualenv from anywhere.
 DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+export PYTHONPATH="$DIR${PYTHONPATH:+:$PYTHONPATH}"
 exec "$DIR/.venv/bin/python" -m astroprocess "$@"
