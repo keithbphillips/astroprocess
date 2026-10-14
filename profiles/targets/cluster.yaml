@@ -1,0 +1,18 @@
+# Star clusters: no star removal; gentle stretch that keeps star colours and avoids bloated cores.
+linear:
+  starnet:
+    enabled: false
+post:
+  stretch:
+    target_bg: 0.10
+    asinh_beta: 60
+    color_preserve: 0.85
+  contrast: 0.1
+  detail:
+    scales: []
+    gains: []
+  local_contrast:
+    amount: 0.0
+  saturation:
+    amount: 1.5
+    background: 0.85

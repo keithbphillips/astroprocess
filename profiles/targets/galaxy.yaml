@@ -1,0 +1,19 @@
+# Galaxies: protect bright cores (arcsinh), fine-scale detail for arms and dust lanes, natural colour.
+post:
+  stretch:
+    target_bg: 0.11
+    asinh_beta: 400
+    color_preserve: 0.7
+  contrast: 0.15
+  detail:
+    scales: [1.5, 4, 10]
+    gains: [1.10, 1.20, 1.05]
+  local_contrast:               # CLAHE: keep low on galaxies, it draws dark rings around bright cores
+    amount: 0.06
+    tiles: 4
+  saturation:
+    amount: 1.45
+    background: 0.85
+  stars:
+    shrink: 0.3
+    strength: 0.9

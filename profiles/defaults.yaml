@@ -1,0 +1,74 @@
+# Base settings. Instrument and target-type profiles override these; any value can also be overridden on
+# the command line with  --set post.saturation.amount=1.6  (dotted path = YAML path).
+
+stack:
+  intermediate_32bit: false   # 16-bit intermediate frames are plenty for 12/14-bit sensors and halve disk use
+  cosme_sigma: [3, 3]         # hot/cold pixel detection (cold, hot) when no darks are available
+  framing: cog                # registration canvas: cog (centre of gravity), min, max, current
+  weight: wfwhm               # frame weighting: wfwhm | noise | nbstars | nbstack
+  filters:                    # quality rejection; "k" = sigma from the sequence mean, "%" = keep best x%
+    wfwhm: 2.5k
+    round: 2.5k
+    bkg: 3k
+  drizzle: false
+  drizzle_scale: 2
+  drizzle_pixfrac: 1.0
+  rejection: null             # null = choose from frame count; or e.g. "rej w 3 3"
+
+linear:
+  autocrop:
+    enabled: true
+    min_coverage: 0.5         # largest box where >= 50% of stacked frames overlap (alt-az field rotation);
+                              # raise for cleaner edges, lower to keep more of the field
+    tolerance: 1.35           # fallback without a coverage map: crop borders noisier than 1.35x the centre
+    max_fraction: 0.25
+  background:
+    method: graxpert          # graxpert (AI) | siril (RBF sample grid) | none
+    correction: Subtraction
+    smoothing: 0.1
+  color:
+    methods: [spcc, starwb]   # tried in order: spcc (Gaia spectra + sensor/filter curves), pcc (Gaia
+                              # photometry; over-blue in our tests, opt-in), starwb (median star white)
+    spcc: null
+  denoise:
+    strength: 0.5             # GraXpert AI denoise on linear data, 0 disables
+  starnet:
+    enabled: true
+    stride: 256
+
+post:
+  stretch:
+    target_bg: 0.12           # where the sky background lands (0..1)
+    shadow_sigma: 2.8         # black point = background - N x noise
+    asinh_beta: 0             # >0 protects bright cores (galaxies)
+    color_preserve: 0.6       # 1 = keep colour ratios exactly, 0 = linked per-channel stretch
+  contrast: 0.15              # S-curve around the background level
+  mask_softness: 0.12
+  detail:                     # multi-scale structure boost: gaussian sigmas (px) and gains (>1 boosts)
+    scales: [2, 6, 16]
+    gains: [1.05, 1.15, 1.10]
+  local_contrast:
+    amount: 0.15
+    tiles: 8
+    clip: 0.01
+  saturation:
+    amount: 1.5               # on signal
+    background: 0.9           # on empty sky (keeps colour noise down)
+  scnr: 0.5                   # remove green cast
+  noise:
+    chroma_sigma: 2.5
+    lum_sigma: 1.0            # extra smoothing of empty sky only
+  stars:                      # star layer = same stretch applied to full vs starless image, then screen-added
+    stretch_factor: 0.7       # star stretch = main target_bg x this (smaller = smaller, dimmer stars)
+    color_preserve: 0.9
+    saturation: 1.3
+    max_chroma: 0.35          # cap star colour strength (relative to brightness); stops tinted halos
+    blue_fringe_limit: null   # cap star blue at N x max(R,G) (set per instrument)
+    halo_desaturate: 0.5      # strip colour from faint star outskirts (blue/violet fringes), keep it in cores
+    shrink: 0.3               # 0..1 halo erosion
+    strength: 1.0
+  hoo:
+    enabled: false
+  final:
+    contrast: 0.0
+    black_target: 0.0

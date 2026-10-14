@@ -1,0 +1,19 @@
+# DSLR (Canon 5D family) with a telephoto lens. Calibration frames are optional but help a lot:
+#   <session>/lights  darks  flats  biases
+# Colour: the 5D is not in Siril's SPCC sensor database. PCC is still plate solved and available
+# (--set linear.color.methods=[pcc]) but over-boosted blue on every test set, so star white balance is used.
+stack:
+  max_stars: 2000
+  distortion: null            # set to e.g. 3 for wide lenses (SIP distortion during registration)
+linear:
+  autocrop:
+    min_coverage: 0.85        # tracked mount: no field rotation, so crop reframing/drift edges strictly
+  color:
+    methods: [starwb]
+  denoise:
+    strength: 0.6             # DSLR data is usually noisier per frame than cooled cameras
+post:
+  scnr: 0.8
+solve:
+  focal: null                 # read from EXIF
+  pixel_size: null            # looked up from the camera model

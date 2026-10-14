@@ -1,0 +1,23 @@
+# Emission / reflection / dark nebulae: strong stretch, large-scale structure, rich colour, smaller stars.
+post:
+  stretch:
+    target_bg: 0.13
+    asinh_beta: 8
+    color_preserve: 0.55
+  contrast: 0.2
+  detail:
+    scales: [2, 6, 16, 40]
+    gains: [1.03, 1.15, 1.20, 1.10]
+  local_contrast:
+    amount: 0.2
+  saturation:
+    amount: 1.7
+    background: 0.85
+  stars:
+    shrink: 0.4
+    strength: 0.85
+  hoo:
+    asinh_beta: 6
+    oiii_boost: 1.8           # OIII is fainter than Ha; boost before the linked stretch
+    green_ha: 0.15            # share of Ha in green: higher = more orange/gold, lower = redder
+    saturation: 1.8

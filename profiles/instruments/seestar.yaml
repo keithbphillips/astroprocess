@@ -1,0 +1,34 @@
+# ZWO Seestar S50: 250 mm f/5, IMX462 (2.9 um), 10 s subs on an alt-az mount (field rotation), no darks.
+stack:
+  max_stars: 500
+linear:
+  color:
+    # PCC was tested on M 81 / NGC 6888 Seestar data and over-boosted blue by ~2x; star white balance is the
+    # fallback when SPCC (needs the Gaia catalogue, local or online) is unavailable
+    methods: [spcc, starwb]
+    spcc:
+      sensor: ZWO Seestar S50
+      filter: UV/IR Block
+      filter_by_name:
+        LP: ZWO Seestar LP      # built-in dual-band (Ha + OIII) light-pollution filter
+        IRCUT: UV/IR Block
+      whiteref: Average Spiral Galaxy
+  denoise:
+    strength: 0.8             # 10 s subs from a small sensor: lean on the AI denoiser
+post:
+  stars:
+    blue_fringe_limit: 1.1    # the S50's bright stars carry blue/violet discs
+solve:
+  focal: 250
+  pixel_size: 2.9
+# Seestar LP-filter data is dual band: also render a narrowband HOO version for nebulae
+per_filter:
+  LP:
+    post:
+      stars:
+        max_chroma: 0.12      # dual-band filter: star colour is unreliable (cyan halos); keep stars near white
+    per_type:
+      nebula:
+        post:
+          hoo:
+            enabled: true
