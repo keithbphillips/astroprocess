@@ -82,7 +82,13 @@ shows where the star field jumps (re-pointing or reframing):
 ```bash
 astro scan /run/media/keith/EOS_DIGITAL/DCIM
 astro run  /run/media/keith/EOS_DIGITAL/DCIM --target "M 31" --session 2024-08-06 --first _MG_7669
+astro run  /run/media/keith/EOS_DIGITAL/DCIM --target "M 33" --frames _MG_7467-_MG_7512
+# two nights of the same target (mixed exposures are fine; frames are then weighted by noise)
+astro run  <card> --target "M 31" --frames _MG_0100-_MG_0160,_MG_0400-_MG_0470 --merge
 ```
+
+Check the target before merging: frames from different fields simply fail to register. A quick plate
+solve, or `astro run ... --out /tmp/x` on each night alone, shows what was actually shot.
 
 For better results, organise sessions like this and add calibration frames:
 

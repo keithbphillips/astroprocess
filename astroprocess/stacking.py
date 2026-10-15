@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import time
 from pathlib import Path
@@ -161,7 +162,12 @@ def stack_group(group: Group, cfg: dict, prof: dict, workdir: Path, log=print) -
     })
     if "frames_stacked" in summary:
         used = summary["frames_stacked"]
-        summary["integration_used_min"] = round(used * (lights[0].exptime or 0) / 60, 1)
+        kept = [int(re.search(r"(\d+)\.fit$", f.name).group(1)) for f in proc.glob(f"{seq}_*.fit")]
+        if len({f.exptime for f in lights}) > 1 and len(kept) == used and max(kept, default=0) <= len(lights):
+            # mixed exposures: the registered files keep the input frame numbers, so sum the real exposures
+            summary["integration_used_min"] = round(sum(lights[i - 1].exptime for i in kept) / 60, 1)
+        else:
+            summary["integration_used_min"] = round(used * (lights[0].exptime or 0) / 60, 1)
     cov = coverage_map(proc, seq)
     if cov is not None:
         from astropy.io import fits

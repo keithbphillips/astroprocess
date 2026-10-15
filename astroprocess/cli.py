@@ -80,6 +80,9 @@ def run_group(group: Group, args, cfg: dict) -> list[Path]:
     overrides = parse_set_args(args.set)
     if args.drizzle:
         overrides.setdefault("stack", {})["drizzle"] = True
+    if len({f.exptime for f in group.lights}) > 1:
+        # mixed exposures: weight by noise so deeper frames count for more (wFWHM ignores depth)
+        overrides.setdefault("stack", {}).setdefault("weight", "noise")
     if group.instrument == "dslr" and not group.flats:
         # no flats: vignetting is multiplicative, so let the background model divide it out
         bg = overrides.setdefault("linear", {}).setdefault("background", {})
@@ -141,10 +144,32 @@ def _select(groups: list[Group], args) -> list[Group]:
         if args.first or args.last:
             g.lights = [f for f in g.lights if (not args.first or f.path.stem >= args.first)
                         and (not args.last or f.path.stem <= args.last)]
+        if args.frames:
+            ranges = [r.split("-", 1) if "-" in r.strip("_") else (r, r) for r in args.frames.split(",")]
+            g.lights = [f for f in g.lights if any(a.strip() <= f.path.stem <= b.strip() for a, b in ranges)]
         if len(g.lights) < args.min_frames or is_solar_system(g.target):
             continue
         out.append(g)
+    if args.merge and len(out) > 1:
+        out = [_merge(out)]
     return out
+
+
+def _merge(groups: list[Group]) -> Group:
+    """One group from several sessions (e.g. two nights of the same target with different exposures)."""
+    if len({(g.instrument, g.target, g.filter) for g in groups}) > 1:
+        raise SystemExit("--merge: groups differ in instrument, target or filter: "
+                         + "; ".join(g.describe() for g in groups))
+    m = Group(groups[0].instrument, groups[0].target, groups[0].filter,
+              session="+".join(sorted({g.session.split("_")[0] for g in groups})))
+    for g in groups:
+        m.lights += g.lights
+        m.darks += g.darks
+        m.flats += g.flats
+        m.biases += g.biases
+        m.seestar_stacks += g.seestar_stacks
+    m.lights.sort(key=lambda f: f.path.name)
+    return m
 
 
 def cmd_run(args) -> int:
@@ -226,6 +251,9 @@ def main(argv: list[str] | None = None) -> int:
             p.add_argument("--session", help="only DSLR sessions starting with this (e.g. 2024-08-06)")
             p.add_argument("--first", help="first frame to use, by file name (e.g. _MG_7669)")
             p.add_argument("--last", help="last frame to use, by file name (e.g. _MG_7737)")
+            p.add_argument("--frames", help="frame ranges to use, e.g. _MG_7467-_MG_7512,_MG_7669-_MG_7737")
+            p.add_argument("--merge", action="store_true",
+                           help="stack all selected sessions together (e.g. two nights, mixed exposures)")
             p.add_argument("--min-frames", type=int, default=5)
             p.add_argument("--restack", action="store_true", help="ignore the cached stack")
             p.add_argument("--drizzle", action="store_true", help="2x bayer drizzle (needs many frames)")
