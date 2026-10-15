@@ -5,10 +5,10 @@ Stacking and processing pipeline for deep-sky astrophotography from a **ZWO Sees
 clusters**. One command takes a folder of raw subframes to a finished picture:
 
 ```
-astro run "/run/media/keith/STAGING/Space/MyWorks/NGC 6888-sub"
+astro run ~/Astro/MyWorks/"NGC 6888-sub"
 ```
 
-Output goes to `/run/media/keith/STAGING/Space/Processed/<Target>/` and `astro gallery` writes an
+Output goes to `<output_root>/<Target>/` (default `~/AstroWork/Processed`, see [Configuration](#configuration)) and `astro gallery` writes an
 `index.html` there for browsing everything processed.
 
 ## What it does
@@ -47,7 +47,7 @@ astro scan  <folder>                 # what can be stacked (and DSLR field jumps
 astro run   <folder>                 # stack + process everything found
 astro run   <folder> --type galaxy   # force a look (nebula | galaxy | cluster)
 astro run   <folder> --filter LP     # only one Seestar filter group
-astro batch /run/media/keith/STAGING/Space/MyWorks --min-frames 50   # whole library
+astro batch ~/Astro/MyWorks --min-frames 50   # whole library
 astro process "<Target>/Stacked_366_NGC 6888_10.0s_LP_....fit" --filter LP   # a Seestar on-board stack
 astro gallery                        # rebuild index.html
 astro profile --instrument seestar --type nebula --filter LP   # show merged settings
@@ -80,9 +80,9 @@ A memory card dump works directly. Frames are split into sessions by time gap, e
 shows where the star field jumps (re-pointing or reframing):
 
 ```bash
-astro scan /run/media/keith/EOS_DIGITAL/DCIM
-astro run  /run/media/keith/EOS_DIGITAL/DCIM --target "M 31" --session 2024-08-06 --first _MG_7669
-astro run  /run/media/keith/EOS_DIGITAL/DCIM --target "M 33" --frames _MG_7467-_MG_7512
+astro scan /media/$USER/EOS_DIGITAL/DCIM
+astro run  /media/$USER/EOS_DIGITAL/DCIM --target "M 31" --session 2024-08-06 --first _MG_7669
+astro run  /media/$USER/EOS_DIGITAL/DCIM --target "M 33" --frames _MG_7467-_MG_7512
 # two nights of the same target (mixed exposures are fine; frames are then weighted by noise)
 astro run  <card> --target "M 31" --frames _MG_0100-_MG_0160,_MG_0400-_MG_0470 --merge
 ```
@@ -104,7 +104,10 @@ M31_2024-08-06/
 of focal lengths is tried and the match is remembered). The 5D isn't in Siril's SPCC database, so colour comes
 from star white balance.
 
-## Installation (already done on this machine)
+## Installation
+
+Linux, Python 3.12, an NVIDIA GPU recommended for GraXpert. The paths below are the defaults; put
+things elsewhere and point `config.yaml` at them.
 
 | Component | Where |
 |---|---|
@@ -115,9 +118,29 @@ from star white balance.
 | Siril SPCC sensor/filter database | `~/.local/share/siril/siril-spcc-database` (git clone) |
 | Gaia catalogues for offline plate solving + SPCC (~12 GB) | `~/.local/share/siril/catalogs` via `scripts/install_catalogs.py` (resumable) |
 | Python env | `.venv`: `uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt` |
-| `astro` command | `~/.local/bin/astro` → `./astro` |
+| `astro` command | `ln -s "$PWD/astro" ~/.local/bin/astro` |
 
-Paths can be overridden in `~/.config/astroprocess/config.yaml` (`output_root`, `work_root`, `tools.*`).
+## Configuration
+
+Folders and tool locations are read from `~/.config/astroprocess/config.yaml`; anything not set there keeps its
+default. Start from the example:
+
+```bash
+mkdir -p ~/.config/astroprocess
+cp config.example.yaml ~/.config/astroprocess/config.yaml
+```
+
+| Key | Default | What |
+|---|---|---|
+| `output_root` | `~/AstroWork/Processed` | Finished pictures and the gallery `index.html` |
+| `work_root` | `~/AstroWork/work` | Stacks and cached linear steps |
+| `tools.*` | see `config.example.yaml` | Siril, GraXpert, StarNet2, cuDNN and Gaia catalogue paths |
+
+`--out <folder>` on `run`/`process` writes one result somewhere else without touching `output_root`.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
 
 ## Not covered
 

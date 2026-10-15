@@ -1,0 +1,14 @@
+# Copy to ~/.config/astroprocess/config.yaml and change what differs on your machine.
+# Anything left out keeps the built-in default (shown here). "~" is expanded.
+
+output_root: ~/AstroWork/Processed   # finished pictures + gallery index.html
+work_root: ~/AstroWork/work          # stacks and cached linear steps (can get large)
+keep_work: false                     # keep the registered frames after stacking
+
+tools:
+  siril: /usr/bin/siril-cli          # default: whatever siril-cli is on PATH
+  graxpert: ~/.local/opt/graxpert/GraXpert-linux/GraXpert
+  starnet: ~/.local/opt/starnet2/starnet2_linux_2.6.2-0242_ORT_x64_cli/starnet2
+  cuda_libs: ~/.local/opt/cudnn8/nvidia/cudnn/lib   # cuDNN 8 for GraXpert's GPU path (optional)
+  gaia_astro: ~/.local/share/siril/catalogs/siril_cat_healpix8_astro.dat
+  gaia_photo: ~/.local/share/siril/catalogs/siril_cat1_healpix8_xpsamp

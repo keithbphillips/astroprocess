@@ -2,15 +2,18 @@
 
 Everything here can be overridden in ~/.config/astroprocess/config.yaml, e.g.
 
-    output_root: /run/media/keith/STAGING/Space/Processed
+    output_root: /mnt/astro/Processed
     work_root: ~/AstroWork/work
     tools:
       graxpert: ~/.local/opt/graxpert/GraXpert-linux/GraXpert
+
+A starter file is in config.example.yaml.
 """
 from __future__ import annotations
 
 import copy
 import os
+import shutil
 from pathlib import Path
 
 import yaml
@@ -20,11 +23,11 @@ PROFILE_DIR = PROJECT_DIR / "profiles"
 USER_CONFIG = Path("~/.config/astroprocess/config.yaml").expanduser()
 
 DEFAULTS = {
-    "output_root": "/run/media/keith/STAGING/Space/Processed",
+    "output_root": "~/AstroWork/Processed",
     "work_root": "~/AstroWork/work",
     "keep_work": False,  # delete the (large) registered frames after stacking
     "tools": {
-        "siril": "/usr/bin/siril-cli",
+        "siril": shutil.which("siril-cli") or "/usr/bin/siril-cli",
         "graxpert": "~/.local/opt/graxpert/GraXpert-linux/GraXpert",
         "starnet": "~/.local/opt/starnet2/starnet2_linux_2.6.2-0242_ORT_x64_cli/starnet2",
         # cuDNN 8 for GraXpert's bundled onnxruntime-gpu (pip wheel nvidia-cudnn-cu12==8.9.7.29)
